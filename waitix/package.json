@@ -1,0 +1,19 @@
+{
+  "name": "waitix",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WAITIX — Marketplace de services de file d'attente",
+  "workspaces": [
+    "app-client",
+    "app-waiter",
+    "backend"
+  ],
+  "scripts": {
+    "client": "cd app-client && npx expo start",
+    "waiter": "cd app-waiter && npx expo start",
+    "client:ios": "cd app-client && npx expo start --ios",
+    "client:android": "cd app-client && npx expo start --android",
+    "waiter:ios": "cd app-waiter && npx expo start --ios",
+    "waiter:android": "cd app-waiter && npx expo start --android"
+  }
+}

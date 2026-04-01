@@ -1,0 +1,21 @@
+[project]
+id = "waitix"
+name = "WAITIX"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["waitix-client://", "waitix-waiter://"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+
+[auth.external.apple]
+enabled = true
+
+[auth.external.google]
+enabled = true
