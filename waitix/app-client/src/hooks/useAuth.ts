@@ -1,7 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Session, User as SupabaseUser } from '@supabase/supabase-js';
-import { authService } from '../services/auth';
 import { User } from '../types';
+
+// Demo mode: set to true to bypass Supabase auth
+const DEMO_MODE = true;
+
+const DEMO_PROFILE: User = {
+  id: 'demo-user-001',
+  email: 'demo@waitix.com',
+  full_name: 'Marie Dupont',
+  role: 'client',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
 
 interface AuthState {
   session: Session | null;
@@ -15,74 +26,72 @@ export function useAuth() {
   const [state, setState] = useState<AuthState>({
     session: null,
     user: null,
-    profile: null,
-    isLoading: true,
+    profile: DEMO_MODE ? DEMO_PROFILE : null,
+    isLoading: false,
     isAuthenticated: false,
   });
 
-  const fetchProfile = useCallback(async (userId: string) => {
-    try {
-      const profile = await authService.getUserProfile(userId);
-      setState((prev) => ({ ...prev, profile: profile as User }));
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  }, []);
-
+  // Skip Supabase connection in demo mode
   useEffect(() => {
-    // Get initial session
-    authService.getSession().then((session) => {
-      setState((prev) => ({
-        ...prev,
-        session,
-        user: session?.user ?? null,
-        isAuthenticated: !!session,
-        isLoading: false,
-      }));
+    if (DEMO_MODE) {
+      setState((prev) => ({ ...prev, isLoading: false }));
+      return;
+    }
 
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      }
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = authService.onAuthStateChange(
-      (_event, session) => {
+    // Real auth logic would go here
+    const init = async () => {
+      try {
+        const { authService } = await import('../services/auth');
+        const session = await authService.getSession();
         setState((prev) => ({
           ...prev,
           session,
           user: session?.user ?? null,
           isAuthenticated: !!session,
           isLoading: false,
+          profile: prev.profile,
         }));
-
-        if (session?.user) {
-          fetchProfile(session.user.id);
-        } else {
-          setState((prev) => ({ ...prev, profile: null }));
-        }
+      } catch {
+        setState((prev) => ({ ...prev, isLoading: false }));
       }
-    );
-
-    return () => {
-      subscription.unsubscribe();
     };
-  }, [fetchProfile]);
+    init();
+  }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
+  const signIn = useCallback(async (_email: string, _password: string) => {
+    if (DEMO_MODE) {
+      setState((prev) => ({
+        ...prev,
+        isAuthenticated: true,
+        profile: DEMO_PROFILE,
+        isLoading: false,
+      }));
+      return;
+    }
     setState((prev) => ({ ...prev, isLoading: true }));
     try {
-      await authService.signIn({ email, password });
+      const { authService } = await import('../services/auth');
+      await authService.signIn({ email: _email, password: _password });
     } finally {
       setState((prev) => ({ ...prev, isLoading: false }));
     }
   }, []);
 
   const signUp = useCallback(
-    async (email: string, password: string, fullName: string) => {
+    async (_email: string, _password: string, fullName: string) => {
+      if (DEMO_MODE) {
+        setState((prev) => ({
+          ...prev,
+          isAuthenticated: true,
+          profile: { ...DEMO_PROFILE, full_name: fullName, email: _email },
+          isLoading: false,
+        }));
+        return;
+      }
       setState((prev) => ({ ...prev, isLoading: true }));
       try {
-        await authService.signUp({ email, password, fullName, role: 'client' });
+        const { authService } = await import('../services/auth');
+        await authService.signUp({ email: _email, password: _password, fullName, role: 'client' });
       } finally {
         setState((prev) => ({ ...prev, isLoading: false }));
       }
@@ -91,16 +100,38 @@ export function useAuth() {
   );
 
   const signOut = useCallback(async () => {
+    if (DEMO_MODE) {
+      setState((prev) => ({
+        ...prev,
+        isAuthenticated: false,
+        profile: DEMO_PROFILE,
+        isLoading: false,
+      }));
+      return;
+    }
     setState((prev) => ({ ...prev, isLoading: true }));
     try {
+      const { authService } = await import('../services/auth');
       await authService.signOut();
     } finally {
       setState((prev) => ({ ...prev, isLoading: false }));
     }
   }, []);
 
-  const resetPassword = useCallback(async (email: string) => {
-    await authService.resetPassword(email);
+  const resetPassword = useCallback(async (_email: string) => {
+    if (DEMO_MODE) return;
+    const { authService } = await import('../services/auth');
+    await authService.resetPassword(_email);
+  }, []);
+
+  const enterDemo = useCallback(() => {
+    setState({
+      session: null,
+      user: null,
+      profile: DEMO_PROFILE,
+      isLoading: false,
+      isAuthenticated: true,
+    });
   }, []);
 
   return {
@@ -109,5 +140,6 @@ export function useAuth() {
     signUp,
     signOut,
     resetPassword,
+    enterDemo,
   };
 }

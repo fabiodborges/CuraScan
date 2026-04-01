@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '../../components/Button';
+import { useAuthContext } from '../../navigation/RootNavigator';
 import { colors, fontSize, spacing } from '../../theme';
 
 type Props = {
@@ -10,6 +11,8 @@ type Props = {
 };
 
 export function OnboardingScreen({ navigation }: Props) {
+  const { enterDemo } = useAuthContext();
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
@@ -58,6 +61,12 @@ export function OnboardingScreen({ navigation }: Props) {
           title="J'ai déjà un compte"
           variant="ghost"
           onPress={() => navigation.navigate('SignIn')}
+        />
+        <Button
+          title="Explorer en mode demo"
+          variant="secondary"
+          size="md"
+          onPress={enterDemo}
         />
       </View>
     </SafeAreaView>

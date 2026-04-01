@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuthContext } from '../../navigation/RootNavigator';
 import { colors, fontSize, spacing, borderRadius } from '../../theme';
 import { PRICING } from '../../types';
 
@@ -30,7 +30,7 @@ type Props = {
 };
 
 export function HomeScreen({ navigation }: Props) {
-  const { profile } = useAuth();
+  const { profile } = useAuthContext();
   const [location, setLocation] = useState('');
   const [selectedDuration, setSelectedDuration] = useState(60);
   const [isUrgent, setIsUrgent] = useState(false);

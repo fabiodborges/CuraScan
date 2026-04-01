@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '../../components/Button';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuthContext } from '../../navigation/RootNavigator';
 import { colors, fontSize, spacing, borderRadius } from '../../theme';
 
 type Props = {
@@ -18,7 +18,7 @@ type Props = {
 };
 
 export function ProfileScreen({ navigation }: Props) {
-  const { profile, signOut, isLoading } = useAuth();
+  const { profile, signOut, isLoading } = useAuthContext();
 
   return (
     <SafeAreaView style={styles.container}>

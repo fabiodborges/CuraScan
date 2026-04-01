@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
@@ -6,10 +6,20 @@ import { AuthNavigator } from './AuthNavigator';
 import { MainNavigator } from './MainNavigator';
 import { colors } from '../theme';
 
-export function RootNavigator() {
-  const { isAuthenticated, isLoading } = useAuth();
+type AuthContextType = ReturnType<typeof useAuth>;
 
-  if (isLoading) {
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export function useAuthContext() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuthContext must be used within RootNavigator');
+  return ctx;
+}
+
+export function RootNavigator() {
+  const auth = useAuth();
+
+  if (auth.isLoading) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator size="large" color={colors.accent} />
@@ -18,9 +28,11 @@ export function RootNavigator() {
   }
 
   return (
-    <NavigationContainer>
-      {isAuthenticated ? <MainNavigator /> : <AuthNavigator />}
-    </NavigationContainer>
+    <AuthContext.Provider value={auth}>
+      <NavigationContainer>
+        {auth.isAuthenticated ? <MainNavigator /> : <AuthNavigator />}
+      </NavigationContainer>
+    </AuthContext.Provider>
   );
 }
 
