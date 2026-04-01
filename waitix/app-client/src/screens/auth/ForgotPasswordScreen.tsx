@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuthContext } from '../../navigation/RootNavigator';
 import { colors, fontSize, spacing } from '../../theme';
 
 type Props = {
@@ -21,7 +21,7 @@ type Props = {
 };
 
 export function ForgotPasswordScreen({ navigation }: Props) {
-  const { resetPassword } = useAuth();
+  const { resetPassword } = useAuthContext();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuthContext } from '../../navigation/RootNavigator';
 import { colors, fontSize, spacing } from '../../theme';
 
 type Props = {
@@ -22,7 +22,7 @@ type Props = {
 };
 
 export function SignInScreen({ navigation }: Props) {
-  const { signIn, isLoading } = useAuth();
+  const { signIn, isLoading } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});

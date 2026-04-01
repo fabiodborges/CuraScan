@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuthContext } from '../../navigation/RootNavigator';
 import { colors, fontSize, spacing } from '../../theme';
 
 type Props = {
@@ -22,7 +22,7 @@ type Props = {
 };
 
 export function SignUpScreen({ navigation }: Props) {
-  const { signUp, isLoading } = useAuth();
+  const { signUp, isLoading } = useAuthContext();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,11 +46,8 @@ export function SignUpScreen({ navigation }: Props) {
     if (!validate()) return;
     try {
       await signUp(email.trim(), password, fullName.trim());
-      Alert.alert(
-        'Vérifiez votre email',
-        'Un lien de confirmation a été envoyé à votre adresse email.',
-        [{ text: 'OK', onPress: () => navigation.navigate('SignIn') }]
-      );
+      // In demo mode, isAuthenticated is set to true automatically
+      // and RootNavigator will switch to MainNavigator
     } catch (error: any) {
       Alert.alert('Erreur', error.message || "Impossible de créer le compte");
     }
