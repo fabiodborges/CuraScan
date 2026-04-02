@@ -1,10 +1,17 @@
-import React from 'react';
-import { View, Text, StyleSheet, StatusBar, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  StatusBar,
+  TouchableOpacity,
+  Animated,
+  Easing,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Button } from '../../components/Button';
 import { useAuthContext } from '../../navigation/RootNavigator';
-import { colors, fontSize, spacing } from '../../theme';
+import { colors, fontSize, spacing, borderRadius } from '../../theme';
 
 type Props = {
   navigation: NativeStackNavigationProp<any>;
@@ -12,67 +19,122 @@ type Props = {
 
 export function OnboardingScreen({ navigation }: Props) {
   const { enterDemo } = useAuthContext();
+  const [pulseAnim] = useState(new Animated.Value(1));
+  const [fadeAnim] = useState(new Animated.Value(0));
+  const [proofIndex, setProofIndex] = useState(0);
+
+  const socialProofs = [
+    '⚡ 3 personnes reservent autour de toi',
+    '🔥 Waiter dispo en 5 min',
+    '📍 2 waiters disponibles autour de toi',
+  ];
+
+  // Fade in on mount
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
+  // CTA pulse
+  useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.02,
+          duration: 1500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulse.start();
+    return () => pulse.stop();
+  }, [pulseAnim]);
+
+  // Rotate social proof
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProofIndex((prev) => (prev + 1) % socialProofs.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [socialProofs.length]);
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        bounces={false}
-      >
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.logo}>WAITIX</Text>
-            <Text style={styles.tagline}>Le temps perdu n'existe plus.</Text>
-          </View>
 
-          <View style={styles.hero}>
-            <Text style={styles.heroTitle}>
-              Quelqu'un fait{'\n'}la queue{' '}
-              <Text style={styles.heroAccent}>pour vous.</Text>
-            </Text>
-            <Text style={styles.heroSubtitle}>
-              Trouvez un Waiter pres de vous, il fait la queue a votre place.
-              Vous payez, il attend. Simple.
-            </Text>
-          </View>
-
-          <View style={styles.stats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>80%</Text>
-              <Text style={styles.statLabel}>pour le Waiter</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>8€</Text>
-              <Text style={styles.statLabel}>a partir de</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>30min</Text>
-              <Text style={styles.statLabel}>minimum</Text>
-            </View>
-          </View>
+      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <Text style={styles.logo}>WAITIX</Text>
         </View>
 
-        <View style={styles.footer}>
-          <Button
-            title="Explorer l'app"
+        {/* Headline */}
+        <View style={styles.headlineSection}>
+          <Text style={styles.headline}>
+            Gagne 1h.{'\n'}
+            <Text style={styles.headlineAccent}>
+              On fait la queue pour toi.
+            </Text>
+          </Text>
+        </View>
+
+        {/* Social Proof - Rating */}
+        <View style={styles.ratingRow}>
+          <Text style={styles.ratingText}>⭐ 4.8</Text>
+          <View style={styles.ratingDot} />
+          <Text style={styles.ratingCount}>1 200+ missions</Text>
+        </View>
+
+        {/* Dynamic Social Proof */}
+        <View style={styles.dynamicProof}>
+          <Text style={styles.dynamicProofText}>
+            {socialProofs[proofIndex]}
+          </Text>
+        </View>
+      </Animated.View>
+
+      {/* Sticky Bottom CTA */}
+      <View style={styles.stickyBottom}>
+        <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+          <TouchableOpacity
+            style={styles.ctaButton}
             onPress={enterDemo}
-          />
-          <Button
-            title="Creer un compte"
-            variant="outline"
+            activeOpacity={0.85}
+          >
+            <Text style={styles.ctaText}>Eviter la queue maintenant</Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Trust Line */}
+        <Text style={styles.trustLine}>
+          🔒 Paiement securise • Debit uniquement si mission reussie
+        </Text>
+
+        {/* Secondary Actions */}
+        <View style={styles.secondaryActions}>
+          <TouchableOpacity
+            style={styles.ghostButton}
             onPress={() => navigation.navigate('SignUp')}
-          />
-          <Button
-            title="J'ai deja un compte"
-            variant="ghost"
-            size="md"
-            onPress={() => navigation.navigate('SignIn')}
-          />
+          >
+            <Text style={styles.ghostButtonText}>Creer un compte</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+            <Text style={styles.linkText}>J'ai deja un compte</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -82,84 +144,120 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-  },
   content: {
     flex: 1,
     paddingHorizontal: spacing.lg,
     justifyContent: 'center',
-    paddingTop: spacing.xl,
   },
-  header: {
+  logoContainer: {
     alignItems: 'center',
-    marginBottom: spacing.xl,
+    marginBottom: spacing.xxl,
   },
   logo: {
-    fontSize: 44,
+    fontSize: 32,
     fontWeight: '900',
     color: colors.accent,
-    letterSpacing: 4,
+    letterSpacing: 6,
   },
-  tagline: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-    fontStyle: 'italic',
-  },
-  hero: {
+  headlineSection: {
     marginBottom: spacing.xl,
   },
-  heroTitle: {
-    fontSize: 32,
-    fontWeight: '700',
+  headline: {
+    fontSize: 34,
+    fontWeight: '800',
     color: colors.textPrimary,
-    lineHeight: 40,
+    lineHeight: 42,
+    textAlign: 'center',
   },
-  heroAccent: {
+  headlineAccent: {
     color: colors.accent,
   },
-  heroSubtitle: {
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+    gap: spacing.sm,
+  },
+  ratingText: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  ratingDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.textMuted,
+  },
+  ratingCount: {
     fontSize: fontSize.md,
     color: colors.textSecondary,
-    marginTop: spacing.sm,
-    lineHeight: 22,
   },
-  stats: {
+  dynamicProof: {
+    alignItems: 'center',
+    backgroundColor: colors.cardBackground,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.lg,
+    alignSelf: 'center',
+  },
+  dynamicProofText: {
+    fontSize: fontSize.sm,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  stickyBottom: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    gap: spacing.sm,
+  },
+  ctaButton: {
+    backgroundColor: colors.accent,
+    borderRadius: borderRadius.md,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.accent,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  ctaText: {
+    fontSize: 19,
+    fontWeight: '900',
+    color: colors.background,
+    letterSpacing: 0.3,
+  },
+  trustLine: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  secondaryActions: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.cardBackground,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: spacing.md,
+    gap: spacing.lg,
+    paddingTop: spacing.xs,
+  },
+  ghostButton: {
+    paddingVertical: spacing.xs + 2,
     paddingHorizontal: spacing.md,
   },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: fontSize.xl,
-    fontWeight: '900',
-    color: colors.accent,
-  },
-  statLabel: {
-    fontSize: fontSize.xs,
+  ghostButtonText: {
+    fontSize: fontSize.sm,
     color: colors.textSecondary,
-    marginTop: 2,
+    fontWeight: '600',
   },
-  statDivider: {
-    width: 1,
-    height: 32,
-    backgroundColor: colors.border,
-  },
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
-    paddingTop: spacing.lg,
-    gap: spacing.sm,
+  linkText: {
+    fontSize: fontSize.sm,
+    color: colors.accent,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
 });
