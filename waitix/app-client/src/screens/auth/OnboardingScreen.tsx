@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   StatusBar,
   TouchableOpacity,
@@ -76,7 +77,11 @@ export function OnboardingScreen({ navigation }: Props) {
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         {/* Logo */}
         <View style={styles.logoContainer}>
-          <Text style={styles.logo}>WAITIX</Text>
+          <Image
+            source={require('../../../assets/logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Headline */}
@@ -153,11 +158,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xxl,
   },
-  logo: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: colors.accent,
-    letterSpacing: 6,
+  logoImage: {
+    width: 120,
+    height: 120,
   },
   headlineSection: {
     marginBottom: spacing.xl,
