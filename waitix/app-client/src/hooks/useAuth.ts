@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { User } from '../types';
+import { Alert } from 'react-native';
 
-// Demo mode: set to true to bypass Supabase auth
+// Demo mode: set to true to bypass Supabase auth entirely
+// Set to false and configure .env when Supabase is ready
 const DEMO_MODE = true;
 
 const DEMO_PROFILE: User = {
@@ -15,8 +16,6 @@ const DEMO_PROFILE: User = {
 };
 
 interface AuthState {
-  session: Session | null;
-  user: SupabaseUser | null;
   profile: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -24,76 +23,81 @@ interface AuthState {
 
 export function useAuth() {
   const [state, setState] = useState<AuthState>({
-    session: null,
-    user: null,
-    profile: DEMO_MODE ? DEMO_PROFILE : null,
-    isLoading: false,
+    profile: null,
+    isLoading: !DEMO_MODE,
     isAuthenticated: false,
   });
 
-  // Skip Supabase connection in demo mode
   useEffect(() => {
-    if (DEMO_MODE) {
-      setState((prev) => ({ ...prev, isLoading: false }));
-      return;
-    }
+    if (DEMO_MODE) return;
 
-    // Real auth logic would go here
-    const init = async () => {
+    // Real Supabase auth init — only runs when DEMO_MODE is false
+    let cancelled = false;
+    (async () => {
       try {
-        const { authService } = await import('../services/auth');
-        const session = await authService.getSession();
-        setState((prev) => ({
-          ...prev,
-          session,
-          user: session?.user ?? null,
-          isAuthenticated: !!session,
-          isLoading: false,
-          profile: prev.profile,
-        }));
+        const { supabase } = await import('../config/supabase');
+        const { data } = await supabase.auth.getSession();
+        if (cancelled) return;
+        const session = data.session;
+        if (session?.user) {
+          const { data: profile } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          setState({ profile, isAuthenticated: true, isLoading: false });
+        } else {
+          setState((prev) => ({ ...prev, isLoading: false }));
+        }
       } catch {
-        setState((prev) => ({ ...prev, isLoading: false }));
+        if (!cancelled) setState((prev) => ({ ...prev, isLoading: false }));
       }
-    };
-    init();
+    })();
+    return () => { cancelled = true; };
   }, []);
 
-  const signIn = useCallback(async (_email: string, _password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     if (DEMO_MODE) {
-      setState((prev) => ({
-        ...prev,
+      setState({
         isAuthenticated: true,
-        profile: DEMO_PROFILE,
+        profile: { ...DEMO_PROFILE, email },
         isLoading: false,
-      }));
+      });
       return;
     }
     setState((prev) => ({ ...prev, isLoading: true }));
     try {
-      const { authService } = await import('../services/auth');
-      await authService.signIn({ email: _email, password: _password });
-    } finally {
+      const { supabase } = await import('../config/supabase');
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    } catch (err: any) {
       setState((prev) => ({ ...prev, isLoading: false }));
+      throw err;
     }
   }, []);
 
   const signUp = useCallback(
-    async (_email: string, _password: string, fullName: string) => {
+    async (email: string, password: string, fullName: string) => {
       if (DEMO_MODE) {
-        setState((prev) => ({
-          ...prev,
+        setState({
           isAuthenticated: true,
-          profile: { ...DEMO_PROFILE, full_name: fullName, email: _email },
+          profile: { ...DEMO_PROFILE, full_name: fullName, email },
           isLoading: false,
-        }));
+        });
         return;
       }
       setState((prev) => ({ ...prev, isLoading: true }));
       try {
-        const { authService } = await import('../services/auth');
-        await authService.signUp({ email: _email, password: _password, fullName, role: 'client' });
-      } finally {
+        const { supabase } = await import('../config/supabase');
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: fullName, role: 'client' } },
+        });
+        if (error) throw error;
+      } catch (err: any) {
         setState((prev) => ({ ...prev, isLoading: false }));
+        throw err;
       }
     },
     []
@@ -101,33 +105,30 @@ export function useAuth() {
 
   const signOut = useCallback(async () => {
     if (DEMO_MODE) {
-      setState((prev) => ({
-        ...prev,
-        isAuthenticated: false,
-        profile: DEMO_PROFILE,
-        isLoading: false,
-      }));
+      setState({ isAuthenticated: false, profile: null, isLoading: false });
       return;
     }
-    setState((prev) => ({ ...prev, isLoading: true }));
     try {
-      const { authService } = await import('../services/auth');
-      await authService.signOut();
-    } finally {
-      setState((prev) => ({ ...prev, isLoading: false }));
+      const { supabase } = await import('../config/supabase');
+      await supabase.auth.signOut();
+      setState({ isAuthenticated: false, profile: null, isLoading: false });
+    } catch {
+      setState({ isAuthenticated: false, profile: null, isLoading: false });
     }
   }, []);
 
-  const resetPassword = useCallback(async (_email: string) => {
-    if (DEMO_MODE) return;
-    const { authService } = await import('../services/auth');
-    await authService.resetPassword(_email);
+  const resetPassword = useCallback(async (email: string) => {
+    if (DEMO_MODE) {
+      Alert.alert('Email envoye', 'Lien de reinitialisation envoye (demo).');
+      return;
+    }
+    const { supabase } = await import('../config/supabase');
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) throw error;
   }, []);
 
   const enterDemo = useCallback(() => {
     setState({
-      session: null,
-      user: null,
       profile: DEMO_PROFILE,
       isLoading: false,
       isAuthenticated: true,
