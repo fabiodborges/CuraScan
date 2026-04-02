@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   StatusBar,
   TouchableOpacity,
@@ -12,7 +13,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthContext } from '../../navigation/RootNavigator';
 import { colors, fontSize, spacing, borderRadius } from '../../theme';
-import { WaitixLogo } from '../../components/WaitixLogo';
 
 type Props = {
   navigation: NativeStackNavigationProp<any>;
@@ -77,7 +77,11 @@ export function OnboardingScreen({ navigation }: Props) {
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         {/* Logo */}
         <View style={styles.logoContainer}>
-          <WaitixLogo size={120} />
+          <Image
+            source={require('../../../assets/logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Headline */}
@@ -153,6 +157,10 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     marginBottom: spacing.xxl,
+  },
+  logoImage: {
+    width: 120,
+    height: 120,
   },
   headlineSection: {
     marginBottom: spacing.xl,
