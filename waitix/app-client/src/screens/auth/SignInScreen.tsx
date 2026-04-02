@@ -22,7 +22,7 @@ type Props = {
 };
 
 export function SignInScreen({ navigation }: Props) {
-  const { signIn, isLoading } = useAuthContext();
+  const { signIn, isLoading, enterDemo } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
@@ -121,6 +121,14 @@ export function SignInScreen({ navigation }: Props) {
               onPress={() => Alert.alert('Google Sign-In', 'Bientôt disponible')}
             />
           </View>
+
+          <Button
+            title="Explorer en mode demo"
+            variant="ghost"
+            size="md"
+            onPress={enterDemo}
+            style={{ marginBottom: spacing.lg }}
+          />
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>Pas encore de compte ? </Text>

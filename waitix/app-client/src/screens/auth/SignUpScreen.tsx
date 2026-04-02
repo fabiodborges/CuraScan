@@ -22,7 +22,7 @@ type Props = {
 };
 
 export function SignUpScreen({ navigation }: Props) {
-  const { signUp, isLoading } = useAuthContext();
+  const { signUp, isLoading, enterDemo } = useAuthContext();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -142,6 +142,14 @@ export function SignUpScreen({ navigation }: Props) {
             <Text style={styles.termsLink}>Politique de Confidentialité</Text>.
           </Text>
 
+          <Button
+            title="Explorer en mode demo"
+            variant="ghost"
+            size="md"
+            onPress={enterDemo}
+            style={styles.demoButton}
+          />
+
           <View style={styles.footer}>
             <Text style={styles.footerText}>Déjà un compte ? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
@@ -221,6 +229,9 @@ const styles = StyleSheet.create({
   termsLink: {
     color: colors.accent,
     fontWeight: '600',
+  },
+  demoButton: {
+    marginBottom: spacing.lg,
   },
   footer: {
     flexDirection: 'row',
