@@ -156,14 +156,14 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: spacing.md,
+    marginBottom: 0,
   },
   logoImage: {
-    width: 500,
-    height: 500,
+    width: 220,
+    height: 220,
   },
   headlineSection: {
-    marginBottom: spacing.xl,
+    marginBottom: spacing.md,
   },
   headline: {
     fontSize: 34,
