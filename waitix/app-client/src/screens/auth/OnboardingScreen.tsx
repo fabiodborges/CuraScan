@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm + 2,
     paddingHorizontal: spacing.lg,
     alignSelf: 'center',
+    marginBottom: spacing.lg,
   },
   dynamicProofText: {
     fontSize: fontSize.sm,
