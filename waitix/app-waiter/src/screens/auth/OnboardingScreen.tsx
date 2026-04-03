@@ -89,8 +89,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xxl,
   },
   logoImage: {
-    width: 120,
-    height: 120,
+    width: 400,
+    height: 400,
   },
   badge: {
     fontSize: fontSize.xs,
