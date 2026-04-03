@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   StatusBar,
   Switch,
@@ -93,7 +94,11 @@ export function DashboardScreen() {
             </Text>
           </View>
           <View style={styles.headerRight}>
-            <Text style={styles.logo}>WAITIX</Text>
+            <Image
+              source={require('../../../assets/logo.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
         </View>
 
@@ -272,11 +277,9 @@ const styles = StyleSheet.create({
   headerRight: {
     alignItems: 'flex-end',
   },
-  logo: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: colors.accent,
-    letterSpacing: 2,
+  logoImage: {
+    width: 36,
+    height: 36,
   },
   onlineCard: {
     flexDirection: 'row',

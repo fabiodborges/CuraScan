@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   StatusBar,
   TouchableOpacity,
@@ -64,7 +65,11 @@ export function HomeScreen({ navigation }: Props) {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logo}>WAITIX</Text>
+          <Image
+            source={require('../../../assets/logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
           <TouchableOpacity
             onPress={() => navigation.navigate('Profile')}
             style={styles.avatarButton}
@@ -238,11 +243,9 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     marginBottom: spacing.lg,
   },
-  logo: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: colors.accent,
-    letterSpacing: 3,
+  logoImage: {
+    width: 40,
+    height: 40,
   },
   avatarButton: {
     width: 40,

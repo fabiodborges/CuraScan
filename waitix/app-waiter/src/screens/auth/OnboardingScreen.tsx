@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, Image, StyleSheet, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '../../components/Button';
@@ -16,7 +16,11 @@ export function OnboardingScreen({ navigation }: Props) {
 
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.logo}>WAITIX</Text>
+          <Image
+            source={require('../../../assets/logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
           <Text style={styles.badge}>WAITER</Text>
           <Text style={styles.tagline}>Gagnez de l'argent en faisant la queue.</Text>
         </View>
@@ -84,11 +88,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xxl,
   },
-  logo: {
-    fontSize: 48,
-    fontWeight: '900',
-    color: colors.accent,
-    letterSpacing: 4,
+  logoImage: {
+    width: 120,
+    height: 120,
   },
   badge: {
     fontSize: fontSize.xs,
