@@ -214,8 +214,8 @@ const styles = StyleSheet.create({
   },
   stickyBottom: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
-    gap: spacing.sm,
+    paddingBottom: spacing.xl,
+    gap: spacing.md,
   },
   ctaButton: {
     backgroundColor: colors.accent,
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: spacing.lg,
-    paddingTop: spacing.xs,
+    paddingTop: spacing.sm,
   },
   ghostButton: {
     paddingVertical: spacing.xs + 2,
