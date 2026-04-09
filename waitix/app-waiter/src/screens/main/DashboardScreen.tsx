@@ -278,8 +278,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   logoImage: {
-    width: 100,
-    height: 100,
+    width: 200,
+    height: 200,
   },
   onlineCard: {
     flexDirection: 'row',

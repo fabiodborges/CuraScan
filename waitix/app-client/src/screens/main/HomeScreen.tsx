@@ -244,8 +244,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   logoImage: {
-    width: 100,
-    height: 100,
+    width: 200,
+    height: 200,
   },
   avatarButton: {
     width: 40,
